@@ -1,0 +1,28 @@
+export interface ApiResponse<T> {
+  httpCode: number;
+  result: T | null;
+  hasError: boolean;
+  mensaje: string;
+  codigoError: string | null;
+  errores: string[] | null;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalRegistros: number;
+  pagina: number;
+  tamanoPagina: number;
+  totalPaginas: number;
+}
+
+export enum TipoPublicador {
+  Publicador = 0,
+  NoBautizado = 1,
+  PrecursorAuxiliar = 2,
+  PrecursorRegular = 3,
+}
+
+export enum TipoReunion {
+  Publica = 0,
+  EntreSemana = 1,
+}

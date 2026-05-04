@@ -1,12 +1,29 @@
-import type { Asistencia, AsistenciaForm } from '../types';
-import { apiGet, apiPost } from './apiClient';
+import type {
+  AsistenciaDto,
+  RegistrarAsistenciaDto,
+  ActualizarAsistenciaDto,
+  RegistrarFechaDto,
+  FiltrosAsistenciaListado,
+  PagedResult,
+} from '../types';
+import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
 
 export const asistenciaService = {
-  getAll: (fechaInicio: string, fechaFin: string) =>
-    apiGet<Asistencia[]>('/asistencia', { fechaInicio, fechaFin }),
-  create: (data: AsistenciaForm) => apiPost<string>('/asistencia', {
-    Fecha: data.fecha,
-    TipoReunion: data.tipoReunion,
-    Cantidad: data.cantidad,
-  }),
+  getListado: (filtros: FiltrosAsistenciaListado) =>
+    apiGet<PagedResult<AsistenciaDto>>('/asistencia', filtros as Record<string, unknown>),
+
+  getById: (id: string) =>
+    apiGet<AsistenciaDto>(`/asistencia/${id}`),
+
+  registrar: (dto: RegistrarAsistenciaDto) =>
+    apiPost<string>('/asistencia', dto),
+
+  registrarFecha: (dto: RegistrarFechaDto) =>
+    apiPost<string>('/asistencia/fecha', dto),
+
+  actualizar: (id: string, dto: ActualizarAsistenciaDto) =>
+    apiPut<string>(`/asistencia/${id}`, dto),
+
+  eliminar: (id: string) =>
+    apiDelete<string>(`/asistencia/${id}`),
 };
