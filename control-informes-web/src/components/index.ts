@@ -5,3 +5,6 @@ export { default as CustomDialog } from './CustomDialog';
 export { default as CustomDataGrid } from './CustomDataGrid';
 export { default as CustomSelect } from './CustomSelect';
 export { default as RequireAuth } from './RequireAuth';
+export { KpiCard } from './KpiCard';
+export { DonutChart } from './DonutChart';
+export { BarChartCategoria } from './BarChartCategoria';

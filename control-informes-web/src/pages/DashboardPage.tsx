@@ -14,9 +14,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
-import { Loader } from '../components';
-import { reportesService } from '../services/reportesService';
-import type { ResumenMensual } from '../types';
+import { Loader, KpiCard, DonutChart, BarChartCategoria } from '../components';
+import { dashboardService, DashboardDto } from '../services/dashboardService';
 import {
   PieChart,
   Pie,
@@ -105,10 +104,11 @@ function KpiCard({ title, value, icon, gradient, subtitle }: KpiCardProps) {
 
 const PIE_COLORS = ['#1976d2', '#42a5f5', '#90caf9'];
 
+
 const currentDate = new Date();
 
 export default function DashboardPage() {
-  const [resumen, setResumen] = useState<ResumenMensual | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [ano, setAno] = useState(currentDate.getFullYear());
   const [mes, setMes] = useState(currentDate.getMonth() + 1);
@@ -117,8 +117,8 @@ export default function DashboardPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await reportesService.getResumenMensual(ano, mes);
-        setResumen(data);
+        const data = await dashboardService.getDashboard(ano, mes);
+        setDashboard(data);
       } catch {
         // Error handled by interceptor
       } finally {
@@ -130,32 +130,30 @@ export default function DashboardPage() {
 
   if (loading) return <Loader />;
 
-  const pieData = resumen
+  const kpis = dashboard?.Kpis;
+  const tipos = dashboard?.TiposPublicador;
+  const distribucion = dashboard?.Distribucion || [];
+
+  const donutData = tipos
     ? [
-        { name: 'Publicadores', value: resumen.publicadores.total },
-        { name: 'Prec. Auxiliares', value: resumen.precursoresAuxiliares.total },
-        { name: 'Prec. Regulares', value: resumen.precursoresRegulares.total },
+        { name: 'Publicadores', value: tipos.Publicadores },
+        { name: 'Prec. Auxiliares', value: tipos.PrecursoresAuxiliares },
+        { name: 'Prec. Regulares', value: tipos.PrecursoresRegulares },
       ]
     : [];
 
-  const barData = resumen
-    ? [
-        { name: 'Publicadores', cantidad: resumen.publicadores.total, fill: '#1976d2' },
-        { name: 'Prec. Aux.', cantidad: resumen.precursoresAuxiliares.total, fill: '#42a5f5' },
-        { name: 'Prec. Reg.', cantidad: resumen.precursoresRegulares.total, fill: '#90caf9' },
-      ]
-    : [];
+  const barData = distribucion.map((d) => ({ name: d.Tipo, value: d.Informes }));
 
   return (
     <Box>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h5" sx={{ color: '#1a2027' }}>
-            Dashboard
+          <Typography variant="h4" sx={{ color: '#1a2027', fontWeight: 700 }}>
+            Dashboard Principal
           </Typography>
-          <Typography variant="body2" sx={{ color: '#637381', mt: 0.5 }}>
-            Resumen general del sistema
+          <Typography variant="subtitle1" sx={{ color: '#637381', mt: 0.5 }}>
+            Datos correspondientes a {MESES.find((m) => m.value === mes)?.label} {ano}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -185,151 +183,88 @@ export default function DashboardPage() {
         </Box>
       </Box>
 
-      {!resumen ? (
+      {!dashboard ? (
         <Typography color="text.secondary">No hay datos para el período seleccionado.</Typography>
       ) : (
         <>
           {/* KPI Cards */}
           <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <KpiCard
                 title="Publicadores Activos"
-                value={resumen.totalPublicadoresActivos}
+                value={kpis?.TotalPublicadoresActivos ?? 0}
                 icon={<PeopleIcon sx={{ color: '#fff', fontSize: 26 }} />}
                 gradient="linear-gradient(135deg, #1565c0, #1976d2)"
+                subtitle={`+${dashboard?.Variaciones.CambioInformes?.toFixed(1) ?? 0}%`}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <KpiCard
                 title="Informes Recibidos"
-                value={resumen.cantidadInformes}
+                value={kpis?.InformesRecibidos ?? 0}
                 icon={<DescriptionIcon sx={{ color: '#fff', fontSize: 26 }} />}
-                gradient="linear-gradient(135deg, #1b5e20, #388e3c)"
+                gradient="linear-gradient(135deg, #42a5f5, #90caf9)"
+                subtitle={`Meta: —`}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <KpiCard
-                title="Total Cursos Bíblicos"
-                value={resumen.totalCursosBiblicos}
+                title="Cursos Bíblicos"
+                value={kpis?.TotalCursosBiblicos ?? 0}
                 icon={<SchoolIcon sx={{ color: '#fff', fontSize: 26 }} />}
-                gradient="linear-gradient(135deg, #bf360c, #f57c00)"
+                gradient="linear-gradient(135deg, #f57c00, #fb8c00)"
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <KpiCard
                 title="Horas Precursores"
-                value={resumen.totalHorasPrecursores}
+                value={kpis?.TotalHorasPrecursores ?? 0}
                 icon={<AccessTimeIcon sx={{ color: '#fff', fontSize: 26 }} />}
-                gradient="linear-gradient(135deg, #4a148c, #7b1fa2)"
+                gradient="linear-gradient(135deg, #7b1fa2, #4a148c)"
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <KpiCard
                 title="Promedio Asistencia"
-                value={resumen.promedioAsistencia.toFixed(1)}
+                value={(kpis?.PromedioAsistencia ?? 0).toFixed(1)}
                 icon={<GroupsIcon sx={{ color: '#fff', fontSize: 26 }} />}
-                gradient="linear-gradient(135deg, #880e4f, #c2185b)"
+                gradient="linear-gradient(135deg, #0d47a1, #1976d2)"
               />
             </Grid>
           </Grid>
 
           {/* Charts */}
           <Grid container spacing={2.5}>
-            {/* Pie Chart */}
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Paper
-                sx={{
-                  p: 3,
-                  border: '1px solid rgba(145,158,171,0.12)',
-                  height: 320,
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 2, fontSize: '0.95rem', color: '#1a2027' }}>
-                  Tipos de Publicador
-                </Typography>
-                <ResponsiveContainer width="100%" height="85%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={4}
-                      dataKey="value"
-                    >
-                      {pieData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: 'none',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                        fontSize: 13,
-                      }}
-                    />
-                    <Legend
-                      iconType="circle"
-                      iconSize={8}
-                      formatter={(value) => (
-                        <span style={{ fontSize: 13, color: '#637381' }}>{value}</span>
-                      )}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Paper>
+            <Grid item xs={12} md={5}>
+              <DonutChart data={donutData} total={kpis?.TotalPublicadoresActivos ?? 0} title="Tipos de Publicador" />
             </Grid>
-
-            {/* Bar Chart */}
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Paper
-                sx={{
-                  p: 3,
-                  border: '1px solid rgba(145,158,171,0.12)',
-                  height: 320,
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 2, fontSize: '0.95rem', color: '#1a2027' }}>
-                  Distribución por Categoría
-                </Typography>
-                <ResponsiveContainer width="100%" height="85%">
-                  <BarChart data={barData} barSize={36}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f3f8" vertical={false} />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 12, fill: '#637381' }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: '#637381' }}
-                      axisLine={false}
-                      tickLine={false}
-                      allowDecimals={false}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: 'none',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                        fontSize: 13,
-                      }}
-                      cursor={{ fill: 'rgba(25,118,210,0.06)' }}
-                    />
-                    <Bar dataKey="cantidad" name="Cantidad" radius={[6, 6, 0, 0]}>
-                      {barData.map((entry, index) => (
-                        <Cell key={`bar-${index}`} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </Paper>
+            <Grid item xs={12} md={7}>
+              <BarChartCategoria data={barData} title="Distribución por Categoría" categories={[]} />
             </Grid>
           </Grid>
+
+          {/* Historial Semestral (tabla simplificada) */}
+          <Box sx={{ mt: 3 }}>
+            <Paper sx={{ p: 2, border: '1px solid rgba(145,158,171,0.12)' }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>Historial de Informes Semestral</Typography>
+              <Box>
+                {/* Tabla simple: mostramos meses y total publicadores */}
+                <Grid container spacing={1}>
+                  {dashboard.HistorialSemestral.map((h) => (
+                    <Grid item xs={12} sm={6} md={4} key={`${h.Ano}-${h.Mes}`}>
+                      <Paper sx={{ p: 2, borderRadius: 2 }}>
+                        <Typography variant="subtitle2" sx={{ color: '#637381' }}>{h.Mes} {h.Ano}</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>{h.PublicadoresActivos}</Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            </Paper>
+          </Box>
         </>
       )}
     </Box>
   );
+}
 }
