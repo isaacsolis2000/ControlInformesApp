@@ -25,6 +25,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import EventIcon from '@mui/icons-material/Event';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import GroupsIcon from '@mui/icons-material/Groups';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuthStore } from '../features/auth/hooks/useAuthStore';
@@ -34,6 +35,7 @@ const DRAWER_WIDTH = 264;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon fontSize="small" />, path: '/dashboard' },
   { text: 'Publicadores', icon: <PeopleIcon fontSize="small" />, path: '/publicadores' },
+  { text: 'Grupos', icon: <GroupsIcon fontSize="small" />, path: '/grupos' },
   { text: 'Informes', icon: <DescriptionIcon fontSize="small" />, path: '/informes' },
   { text: 'Asistencia', icon: <EventIcon fontSize="small" />, path: '/asistencia' },
   { text: 'Reportes', icon: <BarChartIcon fontSize="small" />, path: '/reportes' },
@@ -43,6 +45,7 @@ const menuItems = [
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/publicadores': 'Publicadores',
+  '/grupos': 'Grupos',
   '/informes': 'Informes Mensuales',
   '/asistencia': 'Registro de Asistencia',
   '/reportes': 'Reportes',

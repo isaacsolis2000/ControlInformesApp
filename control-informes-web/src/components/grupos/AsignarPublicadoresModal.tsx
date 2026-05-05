@@ -23,10 +23,19 @@ import { publicadoresService } from '../../services/publicadoresService';
 import { grupoService } from '../../services/grupoService';
 import { useNotificationStore } from '../../stores/notificationStore';
 import type { PublicadorDto } from '../../types';
+import { TipoPublicador } from '../../types';
+
+const TIPO_LABEL: Record<number, string> = {
+  [TipoPublicador.Publicador]: 'Publicador',
+  [TipoPublicador.NoBautizado]: 'No Bautizado',
+  [TipoPublicador.PrecursorAuxiliar]: 'Precursor Auxiliar',
+  [TipoPublicador.PrecursorRegular]: 'Precursor Regular',
+};
 
 interface AsignarPublicadoresModalProps {
   open: boolean;
   idGrupo: string;
+  nombreGrupo?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -34,6 +43,7 @@ interface AsignarPublicadoresModalProps {
 export default function AsignarPublicadoresModal({
   open,
   idGrupo,
+  nombreGrupo,
   onClose,
   onSuccess,
 }: AsignarPublicadoresModalProps) {
@@ -82,9 +92,16 @@ export default function AsignarPublicadoresModal({
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <PersonAddIcon sx={{ color: '#2e7d32', fontSize: 22 }} />
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Asignar Publicadores
-            </Typography>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                Asignar Publicadores
+              </Typography>
+              {nombreGrupo && (
+                <Typography variant="caption" sx={{ color: '#637381' }}>
+                  {nombreGrupo}
+                </Typography>
+              )}
+            </Box>
           </Box>
           <IconButton size="small" onClick={onClose} sx={{ color: '#637381' }}>
             <CloseIcon fontSize="small" />
@@ -133,9 +150,9 @@ export default function AsignarPublicadoresModal({
                   </ListItemIcon>
                   <ListItemText
                     primary={p.nombreCompleto}
-                    secondary={p.inactivo ? 'Inactivo' : undefined}
+                    secondary={TIPO_LABEL[p.tipo] ?? ''}
                     primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    secondaryTypographyProps={{ fontSize: '0.75rem', color: '#94a3b8' }}
+                    secondaryTypographyProps={{ fontSize: '0.75rem', color: '#637381' }}
                   />
                 </ListItem>
               ))}

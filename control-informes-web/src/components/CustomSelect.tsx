@@ -12,6 +12,7 @@ interface CustomSelectProps {
   onChange: (value: string | number) => void;
   fullWidth?: boolean;
   size?: 'small' | 'medium';
+  disabled?: boolean;
 }
 
 export default function CustomSelect({
@@ -21,13 +22,14 @@ export default function CustomSelect({
   onChange,
   fullWidth = true,
   size = 'small',
+  disabled = false,
 }: CustomSelectProps) {
   const handleChange = (e: SelectChangeEvent<string | number>) => {
     onChange(e.target.value);
   };
 
   return (
-    <FormControl fullWidth={fullWidth} size={size}>
+    <FormControl fullWidth={fullWidth} size={size} disabled={disabled}>
       <InputLabel>{label}</InputLabel>
       <Select value={value} label={label} onChange={handleChange}>
         {options.map((opt) => (

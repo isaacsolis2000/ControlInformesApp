@@ -20,13 +20,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import BadgeIcon from '@mui/icons-material/Badge';
 import SearchIcon from '@mui/icons-material/Search';
 import PeopleIcon from '@mui/icons-material/People';
-import GroupsIcon from '@mui/icons-material/Groups';
+
 import DownloadIcon from '@mui/icons-material/Download';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate } from 'react-router-dom';
 import { DataGrid } from '@mui/x-data-grid';
 import { CustomDialog, ConfirmDialog, CustomSelect } from '../components';
-import GruposModal from '../components/grupos/GruposModal';
+
 import { publicadoresService } from '../services/publicadoresService';
 import { grupoService } from '../services/grupoService';
 import { excelService } from '../services/excelService';
@@ -38,6 +38,7 @@ import type {
   CrearPublicadorDto,
   ActualizarPublicadorDto,
   FiltroPublicadorGrupoDto,
+  AsignarPublicadoresDto,
 } from '../types';
 import { TipoPublicador } from '../types';
 
@@ -71,6 +72,7 @@ interface FormState {
   fechaBautismo: string;
   tipo: TipoPublicador;
   inactivo: boolean;
+  idGrupo: string;
 }
 
 const emptyForm: FormState = {
@@ -79,6 +81,7 @@ const emptyForm: FormState = {
   fechaBautismo: '',
   tipo: TipoPublicador.Publicador,
   inactivo: false,
+  idGrupo: '',
 };
 
 export default function PublicadoresPage() {
@@ -103,14 +106,13 @@ export default function PublicadoresPage() {
   // CRUD modal
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingGrupoActual, setEditingGrupoActual] = useState('');
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const [gruposModalOpen, setGruposModalOpen] = useState(false);
 
   const fetchGrupos = useCallback(async () => {
     try {
@@ -156,12 +158,15 @@ export default function PublicadoresPage() {
 
   const handleOpenCreate = () => {
     setEditingId(null);
+    setEditingGrupoActual('');
     setForm(emptyForm);
     setOpenModal(true);
   };
 
   const handleOpenEdit = (pub: PublicadorGrupoDto) => {
     setEditingId(pub.idPublicador);
+    const grupoActual = pub.idGrupo ?? '';
+    setEditingGrupoActual(grupoActual);
     publicadoresService.getById(pub.idPublicador).then((dto: PublicadorDto) => {
       setForm({
         nombreCompleto: dto.nombreCompleto,
@@ -169,6 +174,7 @@ export default function PublicadoresPage() {
         fechaBautismo: dto.fechaBautismo ? dto.fechaBautismo.split('T')[0] : '',
         tipo: dto.tipo,
         inactivo: dto.inactivo,
+        idGrupo: grupoActual,
       });
       setOpenModal(true);
     });
@@ -183,10 +189,12 @@ export default function PublicadoresPage() {
     try {
       if (editingId) {
         const dto: ActualizarPublicadorDto = {
+          idPublicador: editingId,
           nombreCompleto: form.nombreCompleto,
           fechaNacimiento: form.fechaNacimiento || undefined,
           fechaBautismo: form.fechaBautismo || undefined,
           tipo: form.tipo,
+          idGrupo: form.idGrupo || undefined,
           inactivo: form.inactivo,
         };
         await publicadoresService.actualizar(editingId, dto);
@@ -198,7 +206,14 @@ export default function PublicadoresPage() {
           fechaBautismo: form.fechaBautismo || undefined,
           tipo: form.tipo,
         };
-        await publicadoresService.crear(dto);
+        const newId = await publicadoresService.crear(dto);
+        if (form.idGrupo && newId) {
+          const asignarDto: AsignarPublicadoresDto = {
+            idGrupo: form.idGrupo,
+            idPublicadores: [newId],
+          };
+          await grupoService.asignarPublicadores(asignarDto);
+        }
         showNotification('Publicador creado', 'success');
       }
       setOpenModal(false);
@@ -235,6 +250,11 @@ export default function PublicadoresPage() {
 
   const grupoOptions = [
     { value: '', label: 'Todos los grupos' },
+    ...grupos.map((g) => ({ value: g.idGrupo, label: g.nombre })),
+  ];
+
+  const grupoFormOptions = [
+    { value: '', label: 'Sin grupo' },
     ...grupos.map((g) => ({ value: g.idGrupo, label: g.nombre })),
   ];
 
@@ -384,14 +404,6 @@ export default function PublicadoresPage() {
             sx={{ borderRadius: 2.5 }}
           >
             Descargar Excel
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<GroupsIcon />}
-            onClick={() => setGruposModalOpen(true)}
-            sx={{ borderRadius: 2.5 }}
-          >
-            Ver Grupos
           </Button>
           <Button
             variant="contained"
@@ -549,6 +561,13 @@ export default function PublicadoresPage() {
             options={TIPO_OPTIONS.filter((o) => o.value !== '')}
             onChange={(val) => setForm({ ...form, tipo: Number(val) as TipoPublicador })}
           />
+          <CustomSelect
+            label="Grupo"
+            value={form.idGrupo}
+            options={grupoFormOptions}
+            onChange={(val) => setForm({ ...form, idGrupo: val as string })}
+            disabled={!!editingId && editingGrupoActual !== ''}
+          />
           {editingId && (
             <FormControlLabel
               control={
@@ -578,8 +597,6 @@ export default function PublicadoresPage() {
         loading={deleting}
       />
 
-      {/* Modal Grupos */}
-      <GruposModal open={gruposModalOpen} onClose={() => setGruposModalOpen(false)} />
     </Box>
   );
 }

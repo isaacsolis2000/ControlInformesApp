@@ -7,6 +7,7 @@ import InformesPage from '../pages/InformesPage';
 import AsistenciaPage from '../pages/AsistenciaPage';
 import ReportesPage from '../pages/ReportesPage';
 import ExcelPage from '../pages/ExcelPage';
+import GruposPage from '../pages/GruposPage';
 import LoginPage from '../features/auth/pages/LoginPage';
 import RequireAuth from '../components/RequireAuth';
 
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'publicadores', element: <PublicadoresPage /> },
           { path: 'publicadores/:id/tarjeta', element: <TarjetaPage /> },
+          { path: 'grupos', element: <GruposPage /> },
           { path: 'informes', element: <InformesPage /> },
           { path: 'asistencia', element: <AsistenciaPage /> },
           { path: 'reportes', element: <ReportesPage /> },

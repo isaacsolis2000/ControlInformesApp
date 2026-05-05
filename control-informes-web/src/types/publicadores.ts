@@ -47,10 +47,12 @@ export interface CrearPublicadorDto {
 }
 
 export interface ActualizarPublicadorDto {
+  idPublicador: string;
   nombreCompleto: string;
   fechaNacimiento?: string;
   fechaBautismo?: string;
   tipo: TipoPublicador;
+  idGrupo?: string;
   inactivo: boolean;
 }
 
