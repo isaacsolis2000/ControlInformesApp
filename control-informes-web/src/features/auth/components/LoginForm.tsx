@@ -19,6 +19,7 @@ import {
   Visibility,
   VisibilityOff,
   LoginRounded,
+  InfoOutlined,
 } from '@mui/icons-material';
 
 interface LoginFormInputs {
@@ -63,115 +64,107 @@ export default function LoginForm({ onSubmit, isLoading, error }: LoginFormProps
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: 'text.primary',
-            mb: 0.5,
-            letterSpacing: '-0.5px',
-          }}
+          sx={{textAlign:'center' ,fontWeight: 700, fontSize: 28, color: '#1a1a2e', mb: 0.75, letterSpacing: '-0.5px' }}
         >
           Bienvenido
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography sx={{ fontSize: 14, color: '#6b7280' }}>
           Ingresa tus credenciales para continuar
         </Typography>
       </Box>
 
       {/* Error alert */}
       <Collapse in={!!error}>
-        <Alert
-          severity="error"
-          sx={{
-            mb: 3,
-            borderRadius: 2,
-            '& .MuiAlert-message': { fontWeight: 500 },
-          }}
-        >
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 500 } }}>
           {error}
         </Alert>
       </Collapse>
 
       {/* Username */}
-      <TextField
-        {...register('username')}
-        label="Usuario"
-        fullWidth
-        autoFocus
-        autoComplete="username"
-        error={!!errors.username}
-        helperText={errors.username?.message}
-        disabled={isLoading}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <PersonOutlineRounded sx={{ color: 'primary.main', fontSize: 20 }} />
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          mb: 2.5,
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 2,
-            transition: 'box-shadow 0.2s',
-            '&:hover': {
-              boxShadow: '0 0 0 3px rgba(25, 118, 210, 0.08)',
+      <Box sx={{ mb: 2.5 }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#374151', mb: 0.75 }}>
+          Usuario
+        </Typography>
+        <TextField
+          {...register('username')}
+          fullWidth
+          autoFocus
+          autoComplete="username"
+          placeholder="nombre.apellido"
+          error={!!errors.username}
+          helperText={errors.username?.message}
+          disabled={isLoading}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <PersonOutlineRounded sx={{ color: '#2563eb', fontSize: 20 }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              bgcolor: '#fff',
+              '& fieldset': { borderColor: '#e5e7eb' },
+              '&:hover fieldset': { borderColor: '#2563eb' },
+              '&.Mui-focused fieldset': { borderColor: '#2563eb' },
             },
-            '&.Mui-focused': {
-              boxShadow: '0 0 0 3px rgba(25, 118, 210, 0.15)',
-            },
-          },
-        }}
-      />
+          }}
+        />
+      </Box>
 
       {/* Password */}
-      <TextField
-        {...register('password')}
-        label="Contraseña"
-        type={showPassword ? 'text' : 'password'}
-        fullWidth
-        autoComplete="current-password"
-        error={!!errors.password}
-        helperText={errors.password?.message}
-        disabled={isLoading}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <LockOutlined sx={{ color: 'primary.main', fontSize: 20 }} />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={() => setShowPassword((v) => !v)}
-                edge="end"
-                disabled={isLoading}
-                size="small"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showPassword ? (
-                  <VisibilityOff sx={{ fontSize: 20 }} />
-                ) : (
-                  <Visibility sx={{ fontSize: 20 }} />
-                )}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          mb: 4,
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 2,
-            transition: 'box-shadow 0.2s',
-            '&:hover': {
-              boxShadow: '0 0 0 3px rgba(25, 118, 210, 0.08)',
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
+            Contrasena
+          </Typography>
+          <Typography
+            component="span"
+            sx={{ fontSize: 13, color: '#2563eb', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+          >
+            Olvidaste tu contrasena?
+          </Typography>
+        </Box>
+        <TextField
+          {...register('password')}
+          type={showPassword ? 'text' : 'password'}
+          fullWidth
+          autoComplete="current-password"
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          disabled={isLoading}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockOutlined sx={{ color: '#2563eb', fontSize: 20 }} />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword((v) => !v)}
+                  edge="end"
+                  disabled={isLoading}
+                  size="small"
+                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                >
+                  {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              bgcolor: '#fff',
+              '& fieldset': { borderColor: '#e5e7eb' },
+              '&:hover fieldset': { borderColor: '#2563eb' },
+              '&.Mui-focused fieldset': { borderColor: '#2563eb' },
             },
-            '&.Mui-focused': {
-              boxShadow: '0 0 0 3px rgba(25, 118, 210, 0.15)',
-            },
-          },
-        }}
-      />
+          }}
+        />
+      </Box>
 
       {/* Submit button */}
       <Button
@@ -180,33 +173,40 @@ export default function LoginForm({ onSubmit, isLoading, error }: LoginFormProps
         variant="contained"
         size="large"
         disabled={!isValid || isLoading}
-        startIcon={
-          isLoading ? (
-            <CircularProgress size={18} color="inherit" />
-          ) : (
-            <LoginRounded />
-          )
-        }
+        endIcon={isLoading ? null : <LoginRounded />}
         sx={{
           py: 1.5,
-          borderRadius: 2,
+          borderRadius: '8px',
           fontWeight: 700,
           fontSize: '1rem',
-          letterSpacing: '0.3px',
-          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-          boxShadow: '0 4px 16px rgba(25, 118, 210, 0.35)',
-          transition: 'transform 0.15s, box-shadow 0.15s',
-          '&:hover:not(:disabled)': {
-            transform: 'translateY(-1px)',
-            boxShadow: '0 6px 20px rgba(25, 118, 210, 0.45)',
-          },
-          '&:active': {
-            transform: 'translateY(0)',
-          },
+          bgcolor: '#2563eb',
+          boxShadow: 'none',
+          textTransform: 'none',
+          '&:hover:not(:disabled)': { bgcolor: '#1d4ed8', boxShadow: 'none' },
+          '&:active': { bgcolor: '#1e40af' },
         }}
       >
-        {isLoading ? 'Iniciando sesión…' : 'Iniciar sesión'}
+        {isLoading ? <CircularProgress size={20} color="inherit" /> : 'Iniciar sesion'}
       </Button>
+
+      {/* Divider */}
+      <Box sx={{ my: 3, height: '1px', bgcolor: '#e5e7eb' }} />
+
+      {/* Footer */}
+      <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, mb: 0.75 }}>
+          <InfoOutlined sx={{ fontSize: 14, color: '#6b7280' }} />
+          <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.5px' }}>
+            SISTEMA DE GESTION INTERNO
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }}>
+          <LockOutlined sx={{ fontSize: 13, color: '#ef4444' }} />
+          <Typography sx={{ fontSize: 12, color: '#ef4444', fontWeight: 500 }}>
+            Acceso restringido
+          </Typography>
+        </Box>
+      </Box>
     </Box>
   );
 }

@@ -38,8 +38,8 @@ const menuItems = [
   { text: 'Grupos', icon: <GroupsIcon fontSize="small" />, path: '/grupos' },
   { text: 'Informes', icon: <DescriptionIcon fontSize="small" />, path: '/informes' },
   { text: 'Asistencia', icon: <EventIcon fontSize="small" />, path: '/asistencia' },
-  { text: 'Reportes', icon: <BarChartIcon fontSize="small" />, path: '/reportes' },
-  { text: 'Importar Excel', icon: <UploadFileIcon fontSize="small" />, path: '/excel' },
+  //{ text: 'Reportes', icon: <BarChartIcon fontSize="small" />, path: '/reportes' },
+  //{ text: 'Importar Excel', icon: <UploadFileIcon fontSize="small" />, path: '/excel' },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -47,9 +47,9 @@ const pageTitles: Record<string, string> = {
   '/publicadores': 'Publicadores',
   '/grupos': 'Grupos',
   '/informes': 'Informes Mensuales',
-  '/asistencia': 'Registro de Asistencia',
-  '/reportes': 'Reportes',
-  '/excel': 'Importar Excel',
+  '/asistencia': 'Registro de Asistencia'
+  //'/reportes': 'Reportes',
+  //'/excel': 'Importar Excel',
 };
 
 export default function MainLayout() {
