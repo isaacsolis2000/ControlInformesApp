@@ -5,9 +5,11 @@ import type {
   CrearPublicadorDto,
   ActualizarPublicadorDto,
   FiltroPublicadorGrupoDto,
+  ResultadoImportacionTarjetasDto,
   PagedResult,
 } from '../types';
-import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
+import { apiGet, apiPost, apiPut, apiDelete, apiPostFormData } from './apiClient';
+import apiClient from './apiClient';
 
 export const publicadoresService = {
   getAll: () =>
@@ -33,4 +35,45 @@ export const publicadoresService = {
 
   eliminar: (id: string) =>
     apiDelete<string>(`/publicadores/${id}`),
+
+  importarTarjetas: (archivos: File[], idGrupo?: string): Promise<ResultadoImportacionTarjetasDto> => {
+    const formData = new FormData();
+    archivos.forEach((archivo) => formData.append('archivos', archivo));
+    const url = idGrupo
+      ? `/publicadores/importar-tarjetas?idGrupo=${idGrupo}`
+      : '/publicadores/importar-tarjetas';
+    return apiPostFormData<ResultadoImportacionTarjetasDto>(url, formData);
+  },
+
+  descargarTarjetaPdf: async (idPublicador: string, anoServicio: number, nombrePublicador: string): Promise<void> => {
+    const response = await apiClient.get(`/publicadores/${idPublicador}/tarjeta/pdf`, {
+      params: { anoServicio },
+      responseType: 'blob',
+    });
+    const blob = response.data as Blob;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${nombrePublicador} - ${anoServicio}-${anoServicio + 1}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  descargarTarjetasPorGrupo: async (idGrupo: string, anoServicio: number, nombreGrupo: string): Promise<void> => {
+    const response = await apiClient.get(`/publicadores/grupo/${idGrupo}/tarjetas/pdf`, {
+      params: { anoServicio },
+      responseType: 'blob',
+    });
+    const blob = response.data as Blob;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Tarjetas ${nombreGrupo} ${anoServicio}-${anoServicio + 1}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
 };

@@ -16,15 +16,18 @@ export interface DistribucionTipoDto {
 
 export interface HistorialMesDto {
   ano: number;
+  numeroMes: number;
   mes: string;
   publicadores: number;
   precursoresAuxiliares: number;
   precursoresRegulares: number;
+  esMesFiltrado: boolean;
 }
 
 export interface DashboardDto {
-  ano: number;
-  mes: number;
+  anoServicioInicio: number;
+  anoServicioFin: number;
+  mesFiltrado?: number;
   totalPublicadoresActivos: number;
   totalInactivos: number;
   publicadores: CardInformesDto;
@@ -33,5 +36,5 @@ export interface DashboardDto {
   reunionesPublicas: CardReunionDto;
   reunionesServicio: CardReunionDto;
   distribucionPorTipo: DistribucionTipoDto[];
-  historialSemestral: HistorialMesDto[];
+  historial12Meses: HistorialMesDto[];
 }

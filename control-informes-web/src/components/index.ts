@@ -8,3 +8,6 @@ export { default as RequireAuth } from './RequireAuth';
 export { KpiCard } from './KpiCard';
 export { DonutChart } from './DonutChart';
 export { BarChartCategoria } from './BarChartCategoria';
+export { default as PublicadorDetalleModal } from './publicadores/PublicadorDetalleModal';
+export { default as DescargarTarjetaModal } from './publicadores/DescargarTarjetaModal';
+export { default as ImportarTarjetasModal } from './publicadores/ImportarTarjetasModal';

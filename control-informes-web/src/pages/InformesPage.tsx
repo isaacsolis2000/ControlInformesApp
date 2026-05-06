@@ -413,7 +413,7 @@ export default function InformesPage() {
       showNotification('Seleccione un grupo', 'warning');
       return;
     }
-    setDownloadingTemplate(true);
+    setDownloadingTemplate(true);//AISP
     try {
       await informesService.descargarTemplate(templateGrupoId);
     } catch { /* handled by interceptor */ }

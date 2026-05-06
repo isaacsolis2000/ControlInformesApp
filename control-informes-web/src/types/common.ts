@@ -26,3 +26,19 @@ export enum TipoReunion {
   Publica = 0,
   EntreSemana = 1,
 }
+
+export enum Genero {
+  Hombre = 0,
+  Mujer = 1,
+}
+
+export enum CondicionEspiritual {
+  OtrasOvejas = 0,
+  Ungido = 1,
+}
+
+export enum RolCongregacion {
+  Ninguno = 0,
+  SiervoMinisterial = 1,
+  Anciano = 2,
+}

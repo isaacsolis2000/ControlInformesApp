@@ -7,6 +7,10 @@ import {
   IconButton,
   TextField,
   FormControlLabel,
+  FormControl,
+  FormLabel,
+  Radio,
+  RadioGroup,
   Switch,
   InputAdornment,
   Paper,
@@ -17,15 +21,15 @@ import { type GridColDef } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import BadgeIcon from '@mui/icons-material/Badge';
 import SearchIcon from '@mui/icons-material/Search';
 import PeopleIcon from '@mui/icons-material/People';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
 import StarIcon from '@mui/icons-material/Star';
-import { useNavigate } from 'react-router-dom';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { DataGrid } from '@mui/x-data-grid';
-import { CustomDialog, ConfirmDialog, CustomSelect } from '../components';
+import { CustomDialog, ConfirmDialog, CustomSelect, PublicadorDetalleModal, DescargarTarjetaModal, ImportarTarjetasModal } from '../components';
 
 import { publicadoresService } from '../services/publicadoresService';
 import { grupoService } from '../services/grupoService';
@@ -40,7 +44,7 @@ import type {
   FiltroPublicadorGrupoDto,
   AsignarPublicadoresDto,
 } from '../types';
-import { TipoPublicador } from '../types';
+import { TipoPublicador, Genero, CondicionEspiritual, RolCongregacion } from '../types';
 
 const PAGE_SIZE = 15;
 
@@ -66,11 +70,20 @@ const TIPO_COLOR: Record<number, 'default' | 'primary' | 'info' | 'warning'> = {
   [TipoPublicador.PrecursorRegular]: 'primary',
 };
 
+const ROL_OPTIONS = [
+  { value: RolCongregacion.Ninguno, label: 'Ninguno' },
+  { value: RolCongregacion.SiervoMinisterial, label: 'Siervo ministerial' },
+  { value: RolCongregacion.Anciano, label: 'Anciano' },
+];
+
 interface FormState {
   nombreCompleto: string;
   fechaNacimiento: string;
   fechaBautismo: string;
+  genero: Genero;
+  condicionEspiritual: CondicionEspiritual;
   tipo: TipoPublicador;
+  rol: RolCongregacion;
   inactivo: boolean;
   idGrupo: string;
 }
@@ -79,13 +92,15 @@ const emptyForm: FormState = {
   nombreCompleto: '',
   fechaNacimiento: '',
   fechaBautismo: '',
+  genero: Genero.Hombre,
+  condicionEspiritual: CondicionEspiritual.OtrasOvejas,
   tipo: TipoPublicador.Publicador,
+  rol: RolCongregacion.Ninguno,
   inactivo: false,
   idGrupo: '',
 };
 
 export default function PublicadoresPage() {
-  const navigate = useNavigate();
   const showNotification = useNotificationStore((s) => s.showNotification);
 
   // Datos paginados
@@ -113,6 +128,14 @@ export default function PublicadoresPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+
+  const [tarjetaOpen, setTarjetaOpen] = useState(false);
+  const [tarjetaPublicador, setTarjetaPublicador] = useState<{ idPublicador: string; nombrePublicador: string } | null>(null);
+
+  const [importarOpen, setImportarOpen] = useState(false);
 
   const fetchGrupos = useCallback(async () => {
     try {
@@ -172,7 +195,10 @@ export default function PublicadoresPage() {
         nombreCompleto: dto.nombreCompleto,
         fechaNacimiento: dto.fechaNacimiento ? dto.fechaNacimiento.split('T')[0] : '',
         fechaBautismo: dto.fechaBautismo ? dto.fechaBautismo.split('T')[0] : '',
+        genero: dto.genero,
+        condicionEspiritual: dto.condicionEspiritual,
         tipo: dto.tipo,
+        rol: dto.rol,
         inactivo: dto.inactivo,
         idGrupo: grupoActual,
       });
@@ -186,6 +212,7 @@ export default function PublicadoresPage() {
       return;
     }
     setSaving(true);
+    const rolFinal = form.tipo === TipoPublicador.NoBautizado ? RolCongregacion.Ninguno : form.rol;
     try {
       if (editingId) {
         const dto: ActualizarPublicadorDto = {
@@ -193,7 +220,10 @@ export default function PublicadoresPage() {
           nombreCompleto: form.nombreCompleto,
           fechaNacimiento: form.fechaNacimiento || undefined,
           fechaBautismo: form.fechaBautismo || undefined,
+          genero: form.genero,
+          condicionEspiritual: form.condicionEspiritual,
           tipo: form.tipo,
+          rol: rolFinal,
           idGrupo: form.idGrupo || undefined,
           inactivo: form.inactivo,
         };
@@ -204,7 +234,12 @@ export default function PublicadoresPage() {
           nombreCompleto: form.nombreCompleto,
           fechaNacimiento: form.fechaNacimiento || undefined,
           fechaBautismo: form.fechaBautismo || undefined,
+          genero: form.genero,
+          condicionEspiritual: form.condicionEspiritual,
           tipo: form.tipo,
+          rol: rolFinal,
+          idGrupo: form.idGrupo || undefined,
+          inactivo: false,
         };
         const newId = await publicadoresService.crear(dto);
         if (form.idGrupo && newId) {
@@ -317,21 +352,40 @@ export default function PublicadoresPage() {
     {
       field: 'acciones',
       headerName: 'Acciones',
-      width: 130,
+      width: 165,
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title="Ver tarjeta">
+          <Tooltip title="Ver detalle">
             <IconButton
               size="small"
-              onClick={() => navigate(`/publicadores/${params.row.idPublicador}/tarjeta`)}
+              onClick={() => {
+                setDetailId(params.row.idPublicador);
+                setDetailOpen(true);
+              }}
+              sx={{
+                color: '#388e3c',
+                bgcolor: 'rgba(56,142,60,0.08)',
+                '&:hover': { bgcolor: 'rgba(56,142,60,0.16)' },
+              }}
+            >
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Descargar tarjeta">
+            <IconButton
+              size="small"
+              onClick={() => {
+                setTarjetaPublicador({ idPublicador: params.row.idPublicador, nombrePublicador: params.row.nombrePublicador });
+                setTarjetaOpen(true);
+              }}
               sx={{
                 color: '#0288d1',
                 bgcolor: 'rgba(2,136,209,0.08)',
                 '&:hover': { bgcolor: 'rgba(2,136,209,0.16)' },
               }}
             >
-              <BadgeIcon fontSize="small" />
+              <PictureAsPdfIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
@@ -404,6 +458,14 @@ export default function PublicadoresPage() {
             sx={{ borderRadius: 2.5 }}
           >
             Descargar Excel
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            onClick={() => setImportarOpen(true)}
+            sx={{ borderRadius: 2.5 }}
+          >
+            Importar Tarjetas
           </Button>
           <Button
             variant="contained"
@@ -555,11 +617,57 @@ export default function PublicadoresPage() {
             fullWidth
             slotProps={{ inputLabel: { shrink: true } }}
           />
+          <FormControl>
+            <FormLabel sx={{ fontSize: '0.875rem', mb: 0.5 }}>Género</FormLabel>
+            <RadioGroup
+              row
+              value={form.genero}
+              onChange={(e) => setForm({ ...form, genero: Number(e.target.value) as Genero })}
+            >
+              <FormControlLabel value={Genero.Hombre} control={<Radio size="small" />} label="Hombre" />
+              <FormControlLabel value={Genero.Mujer} control={<Radio size="small" />} label="Mujer" />
+            </RadioGroup>
+          </FormControl>
+          <FormControl>
+            <FormLabel sx={{ fontSize: '0.875rem', mb: 0.5 }}>Condición espiritual</FormLabel>
+            <RadioGroup
+              row
+              value={form.condicionEspiritual}
+              onChange={(e) =>
+                setForm({ ...form, condicionEspiritual: Number(e.target.value) as CondicionEspiritual })
+              }
+            >
+              <FormControlLabel
+                value={CondicionEspiritual.OtrasOvejas}
+                control={<Radio size="small" />}
+                label="Otras ovejas"
+              />
+              <FormControlLabel
+                value={CondicionEspiritual.Ungido}
+                control={<Radio size="small" />}
+                label="Ungido"
+              />
+            </RadioGroup>
+          </FormControl>
           <CustomSelect
             label="Tipo de publicador"
             value={form.tipo}
             options={TIPO_OPTIONS.filter((o) => o.value !== '')}
-            onChange={(val) => setForm({ ...form, tipo: Number(val) as TipoPublicador })}
+            onChange={(val) => {
+              const newTipo = Number(val) as TipoPublicador;
+              setForm({
+                ...form,
+                tipo: newTipo,
+                rol: newTipo === TipoPublicador.NoBautizado ? RolCongregacion.Ninguno : form.rol,
+              });
+            }}
+          />
+          <CustomSelect
+            label="Rol"
+            value={form.rol}
+            options={ROL_OPTIONS}
+            onChange={(val) => setForm({ ...form, rol: Number(val) as RolCongregacion })}
+            disabled={form.tipo === TipoPublicador.NoBautizado}
           />
           <CustomSelect
             label="Grupo"
@@ -587,6 +695,17 @@ export default function PublicadoresPage() {
         </Box>
       </CustomDialog>
 
+      {/* Detalle publicador */}
+      <PublicadorDetalleModal
+        open={detailOpen}
+        idPublicador={detailId}
+        onClose={() => setDetailOpen(false)}
+        onEdit={(id) => {
+          const row = rows.find((r) => r.idPublicador === id);
+          if (row) handleOpenEdit(row);
+        }}
+      />
+
       {/* Confirm Delete */}
       <ConfirmDialog
         open={deleteOpen}
@@ -595,6 +714,20 @@ export default function PublicadoresPage() {
         onCancel={() => setDeleteOpen(false)}
         confirmText="Eliminar"
         loading={deleting}
+      />
+
+      {/* Descargar tarjeta PDF */}
+      <DescargarTarjetaModal
+        open={tarjetaOpen}
+        onClose={() => setTarjetaOpen(false)}
+        publicador={tarjetaPublicador}
+      />
+
+      {/* Importar tarjetas PDF */}
+      <ImportarTarjetasModal
+        open={importarOpen}
+        onClose={() => setImportarOpen(false)}
+        onImportado={() => fetchData(pagina)}
       />
 
     </Box>

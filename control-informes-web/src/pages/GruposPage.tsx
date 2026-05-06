@@ -22,12 +22,14 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PeopleIcon from '@mui/icons-material/People';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
 import { grupoService } from '../services/grupoService';
 import { useNotificationStore } from '../stores/notificationStore';
 import ConfirmDialog from '../components/ConfirmDialog';
 import GrupoFormModal from '../components/grupos/GrupoFormModal';
 import AsignarPublicadoresModal from '../components/grupos/AsignarPublicadoresModal';
 import QuitarMiembrosModal from '../components/grupos/QuitarMiembrosModal';
+import DescargarTarjetasGrupoModal from '../components/grupos/DescargarTarjetasGrupoModal';
 import type { GrupoDto } from '../types';
 
 export default function GruposPage() {
@@ -48,6 +50,9 @@ export default function GruposPage() {
 
   const [miembrosOpen, setMiembrosOpen] = useState(false);
   const [miembrosGrupo, setMiembrosGrupo] = useState<GrupoDto | null>(null);
+
+  const [tarjetasOpen, setTarjetasOpen] = useState(false);
+  const [tarjetasGrupo, setTarjetasGrupo] = useState<GrupoDto | null>(null);
 
   const fetchGrupos = useCallback(async () => {
     setLoading(true);
@@ -218,6 +223,32 @@ export default function GruposPage() {
                             <PersonAddIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
+                        <Tooltip
+                          title={
+                            (g.totalMiembros ?? 0) === 0
+                              ? 'Este grupo no tiene publicadores asignados'
+                              : 'Descargar tarjetas del grupo'
+                          }
+                        >
+                          <span>
+                            <IconButton
+                              size="small"
+                              disabled={(g.totalMiembros ?? 0) === 0}
+                              onClick={() => {
+                                setTarjetasGrupo(g);
+                                setTarjetasOpen(true);
+                              }}
+                              sx={{
+                                color: '#0288d1',
+                                bgcolor: 'rgba(2,136,209,0.08)',
+                                '&:hover': { bgcolor: 'rgba(2,136,209,0.16)' },
+                                '&.Mui-disabled': { opacity: 0.4 },
+                              }}
+                            >
+                              <FolderZipIcon fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
                         <Tooltip title="Editar">
                           <IconButton
                             size="small"
@@ -303,6 +334,13 @@ export default function GruposPage() {
         onCancel={() => setDeleteOpen(false)}
         confirmText="Eliminar"
         loading={deleting}
+      />
+
+      {/* Descargar tarjetas del grupo */}
+      <DescargarTarjetasGrupoModal
+        open={tarjetasOpen}
+        onClose={() => setTarjetasOpen(false)}
+        grupo={tarjetasGrupo}
       />
     </Box>
   );

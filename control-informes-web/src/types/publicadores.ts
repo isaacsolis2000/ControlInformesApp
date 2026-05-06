@@ -1,12 +1,22 @@
-import { TipoPublicador } from './common';
+import { TipoPublicador, Genero, CondicionEspiritual, RolCongregacion } from './common';
 
 export interface PublicadorDto {
   idPublicador: string;
   nombreCompleto: string;
   fechaNacimiento?: string;
   fechaBautismo?: string;
+  genero: Genero;
+  generoDescripcion: string;
+  condicionEspiritual: CondicionEspiritual;
+  condicionEspiritualDescripcion: string;
   tipo: TipoPublicador;
+  tipoDescripcion: string;
+  rol: RolCongregacion;
+  rolDescripcion: string;
+  idGrupo?: string;
+  nombreGrupo: string;
   inactivo: boolean;
+  activo: boolean;
   fechaCreacion: string;
 }
 
@@ -43,7 +53,12 @@ export interface CrearPublicadorDto {
   nombreCompleto: string;
   fechaNacimiento?: string;
   fechaBautismo?: string;
+  genero: Genero;
+  condicionEspiritual: CondicionEspiritual;
   tipo: TipoPublicador;
+  rol: RolCongregacion;
+  idGrupo?: string;
+  inactivo: boolean;
 }
 
 export interface ActualizarPublicadorDto {
@@ -51,7 +66,10 @@ export interface ActualizarPublicadorDto {
   nombreCompleto: string;
   fechaNacimiento?: string;
   fechaBautismo?: string;
+  genero: Genero;
+  condicionEspiritual: CondicionEspiritual;
   tipo: TipoPublicador;
+  rol: RolCongregacion;
   idGrupo?: string;
   inactivo: boolean;
 }
@@ -74,4 +92,12 @@ export interface FiltroPublicadorGrupoDto {
   inactivo?: boolean;
   pagina: number;
   tamanoPagina: number;
+}
+
+export interface ResultadoImportacionTarjetasDto {
+  exitosos: number;
+  fallidos: number;
+  errores: string[];
+  creados: string[];
+  actualizados: string[];
 }

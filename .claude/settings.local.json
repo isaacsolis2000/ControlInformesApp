@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"d:\\\\Cipresses\\\\Sistema\\\\ControlInformesApp\\\\control-informes-web\\\\src\\\\components\" -Recurse -File | Select-Object -ExpandProperty FullName | Where-Object { $_ -match \"publicador\" -or $_ -match \"Publicador\" })"
+    ]
+  }
+}
