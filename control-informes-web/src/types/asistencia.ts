@@ -20,6 +20,7 @@ export interface RegistrarAsistenciaDto {
 }
 
 export interface ActualizarAsistenciaDto {
+  idAsistencia: string;
   fechaReunion: string;
   tipoReunion: TipoReunion;
   cantidadPresencial: number;

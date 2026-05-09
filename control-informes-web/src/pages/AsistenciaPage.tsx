@@ -189,13 +189,14 @@ export default function AsistenciaPage() {
     try {
       if (editingId) {
         const dto: ActualizarAsistenciaDto = {
+          idAsistencia: editingId,
           fechaReunion: reunionForm.fechaReunion,
           tipoReunion: reunionForm.tipoReunion,
           cantidadPresencial: reunionForm.cantidadPresencial,
           cantidadVirtual: reunionForm.cantidadVirtual,
           observacion: reunionForm.observacion || undefined,
         };
-        await asistenciaService.actualizar(editingId, dto);
+        await asistenciaService.actualizar(dto);
         showNotification('Reunión actualizada', 'success');
       } else {
         const dto: RegistrarAsistenciaDto = {

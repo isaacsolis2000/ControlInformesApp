@@ -21,8 +21,8 @@ export const asistenciaService = {
   registrarFecha: (dto: RegistrarFechaDto) =>
     apiPost<string>('/asistencia/fecha', dto),
 
-  actualizar: (id: string, dto: ActualizarAsistenciaDto) =>
-    apiPut<string>(`/asistencia/${id}`, dto),
+  actualizar: (dto: ActualizarAsistenciaDto) =>
+    apiPut<string>(`/asistencia}`, dto),
 
   eliminar: (id: string) =>
     apiDelete<string>(`/asistencia/${id}`),
