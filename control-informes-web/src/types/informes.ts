@@ -48,17 +48,24 @@ export interface ResumenPrecursorDto {
   cursosBiblicos: number;
 }
 
+export interface PromedioReunionDto {
+  hayReuniones: boolean;
+  cantidadReuniones: number;
+  promedio: number;
+}
+
 export interface PendientesDto {
   reunionesRegistradas: boolean;
   gruposSinInforme: string[];
-  publicadoresSinInforme: string[];
+  publicadoresSinInformePorGrupo: Record<string, string[]>;
 }
 
 export interface TotalInformeDto {
   ano: number;
   mes: number;
   totalPublicadores: number;
-  promedioAsistenciaReuniones: number;
+  promedioReunionEntreSemana: PromedioReunionDto;
+  promedioReunionFinSemana: PromedioReunionDto;
   publicadores: ResumenTipoDto;
   precursoresAuxiliares: ResumenPrecursorDto;
   precursoresRegulares: ResumenPrecursorDto;

@@ -42,3 +42,9 @@ export enum RolCongregacion {
   SiervoMinisterial = 1,
   Anciano = 2,
 }
+
+export enum TipoResumenPublicador {
+  Publicador = 0,
+  PrecursorAuxiliar = 1,
+  PrecursorRegular = 2,
+}

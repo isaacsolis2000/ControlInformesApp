@@ -11,3 +11,4 @@ export { BarChartCategoria } from './BarChartCategoria';
 export { default as PublicadorDetalleModal } from './publicadores/PublicadorDetalleModal';
 export { default as DescargarTarjetaModal } from './publicadores/DescargarTarjetaModal';
 export { default as ImportarTarjetasModal } from './publicadores/ImportarTarjetasModal';
+export { default as TarjetaResumenModal } from './publicadores/TarjetaResumenModal';

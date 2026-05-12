@@ -25,6 +25,9 @@ import {
   ListItemText,
   Card,
   CardContent,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -39,8 +42,10 @@ import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import WeekendIcon from '@mui/icons-material/Weekend';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ConfirmDialog, CustomSelect, KpiCard } from '../components';
 import { informesService } from '../services/informesService';
 import { grupoService } from '../services/grupoService';
@@ -669,14 +674,7 @@ export default function InformesPage() {
                     gradient="linear-gradient(135deg,#1565c0,#1976d2)"
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <KpiCard
-                    title="Promedio Asistencia Reuniones"
-                    value={totalData.promedioAsistenciaReuniones}
-                    icon={<PeopleOutlinedIcon sx={{ color: '#fff', fontSize: 24 }} />}
-                    gradient="linear-gradient(135deg,#00695c,#00897b)"
-                  />
-                </Grid>
+                
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <KpiCard
                     title="Informes — Publicadores"
@@ -702,6 +700,40 @@ export default function InformesPage() {
                     subtitle={`${totalData.precursoresRegulares.horas}h · ${totalData.precursoresRegulares.cursosBiblicos} cursos`}
                     icon={<AccessTimeIcon sx={{ color: '#fff', fontSize: 24 }} />}
                     gradient="linear-gradient(135deg,#c62828,#e53935)"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <KpiCard
+                    title="Reunión de servicio"
+                    value={
+                      totalData.promedioReunionEntreSemana.hayReuniones
+                        ? `${totalData.promedioReunionEntreSemana.promedio}`
+                        : '0'
+                    }
+                    subtitle={
+                      totalData.promedioReunionEntreSemana.hayReuniones
+                        ? `${totalData.promedioReunionEntreSemana.cantidadReuniones} reuniones`
+                        : undefined
+                    }
+                    icon={<CalendarTodayIcon sx={{ color: '#fff', fontSize: 24 }} />}
+                    gradient="linear-gradient(135deg,#00695c,#00897b)"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <KpiCard
+                    title="Reunión publica"
+                    value={
+                      totalData.promedioReunionFinSemana.hayReuniones
+                        ? `${totalData.promedioReunionFinSemana.promedio}`
+                        : '0'
+                    }
+                    subtitle={
+                      totalData.promedioReunionFinSemana.hayReuniones
+                        ? `${totalData.promedioReunionFinSemana.cantidadReuniones} reuniones`
+                        : undefined
+                    }
+                    icon={<WeekendIcon sx={{ color: '#fff', fontSize: 24 }} />}
+                    gradient="linear-gradient(135deg,#0277bd,#0288d1)"
                   />
                 </Grid>
               </Grid>
@@ -730,22 +762,37 @@ export default function InformesPage() {
                 </Alert>
               )}
 
-              {totalData.pendientes.publicadoresSinInforme.length > 0 && (
-                <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 1.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    Publicadores sin informe ({totalData.pendientes.publicadoresSinInforme.length}):
-                  </Typography>
-                  <Box component="ul" sx={{ m: 0, pl: 2.5, mt: 0.5 }}>
-                    {totalData.pendientes.publicadoresSinInforme.map((p) => (
-                      <li key={p}><Typography variant="body2">{p}</Typography></li>
-                    ))}
-                  </Box>
-                </Alert>
+              {Object.keys(totalData.pendientes.publicadoresSinInformePorGrupo).length > 0 && (
+                <Box sx={{ mb: 1.5 }}>
+                  <Alert severity="warning" icon={<WarningAmberIcon />} sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      Publicadores sin informe
+                    </Typography>
+                  </Alert>
+                  {Object.entries(totalData.pendientes.publicadoresSinInformePorGrupo).map(
+                    ([grupo, publicadores]) => (
+                      <Accordion key={grupo} disableGutters sx={{ mb: 0.5, border: '1px solid', borderColor: grupo === 'Sin grupo' ? 'grey.300' : 'warning.light', borderRadius: 1, '&:before': { display: 'none' } }}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: grupo === 'Sin grupo' ? 'grey.100' : 'warning.50', minHeight: 40, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {grupo} ({publicadores.length} pendiente{publicadores.length !== 1 ? 's' : ''})
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ py: 1, px: 2 }}>
+                          {publicadores.map((nombre) => (
+                            <Typography key={nombre} variant="body2" sx={{ py: 0.25 }}>
+                              {nombre}
+                            </Typography>
+                          ))}
+                        </AccordionDetails>
+                      </Accordion>
+                    )
+                  )}
+                </Box>
               )}
 
               {totalData.pendientes.reunionesRegistradas &&
                 totalData.pendientes.gruposSinInforme.length === 0 &&
-                totalData.pendientes.publicadoresSinInforme.length === 0 && (
+                Object.keys(totalData.pendientes.publicadoresSinInformePorGrupo).length === 0 && (
                   <Alert severity="success">
                     Todos los informes del mes están completos.
                   </Alert>

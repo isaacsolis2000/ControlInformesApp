@@ -8,6 +8,7 @@ import type {
   ResultadoImportacionTarjetasDto,
   PagedResult,
 } from '../types';
+import { TipoResumenPublicador } from '../types';
 import { apiGet, apiPost, apiPut, apiDelete, apiPostFormData } from './apiClient';
 import apiClient from './apiClient';
 
@@ -71,6 +72,27 @@ export const publicadoresService = {
     const a = document.createElement('a');
     a.href = url;
     a.download = `Tarjetas ${nombreGrupo} ${anoServicio}-${anoServicio + 1}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  descargarTarjetaResumen: async (anoServicio: number, tipo: TipoResumenPublicador): Promise<void> => {
+    const NOMBRES: Record<TipoResumenPublicador, string> = {
+      [TipoResumenPublicador.Publicador]: `Publicadores_${anoServicio}.pdf`,
+      [TipoResumenPublicador.PrecursorAuxiliar]: `Precursores_Auxiliares_${anoServicio}.pdf`,
+      [TipoResumenPublicador.PrecursorRegular]: `Precursores_Regulares_${anoServicio}.pdf`,
+    };
+    const response = await apiClient.get('/publicadores/tarjeta-resumen/pdf', {
+      params: { anoServicio, tipo },
+      responseType: 'blob',
+    });
+    const blob = response.data as Blob;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = NOMBRES[tipo];
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

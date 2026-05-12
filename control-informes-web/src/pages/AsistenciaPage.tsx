@@ -22,8 +22,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import CloseIcon from '@mui/icons-material/Close';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import dayjs from 'dayjs';
 import { ConfirmDialog, CustomSelect } from '../components';
+import TarjetaReunionesModal from '../components/asistencia/TarjetaReunionesModal';
 import { asistenciaService } from '../services/asistenciaService';
 import { useNotificationStore } from '../stores/notificationStore';
 import type {
@@ -135,6 +137,9 @@ export default function AsistenciaPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // tarjeta reuniones
+  const [tarjetaOpen, setTarjetaOpen] = useState(false);
 
   // ─── fetch ──────────────────────────────────────────────────────────────────
 
@@ -383,6 +388,14 @@ export default function AsistenciaPage() {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="outlined"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => setTarjetaOpen(true)}
+            sx={{ borderRadius: 2.5 }}
+          >
+            Descargar Tarjeta
+          </Button>
+          <Button
+            variant="outlined"
             startIcon={<EventNoteIcon />}
             onClick={() => { setFechaForm(emptyFechaForm); setFechaOpen(true); }}
             sx={{ borderRadius: 2.5 }}
@@ -581,6 +594,12 @@ export default function AsistenciaPage() {
         onCancel={() => setDeleteOpen(false)}
         confirmText="Eliminar"
         loading={deleting}
+      />
+
+      {/* ── MODAL TARJETA REUNIONES ───────────────────────────────────────────── */}
+      <TarjetaReunionesModal
+        open={tarjetaOpen}
+        onClose={() => setTarjetaOpen(false)}
       />
     </Box>
   );

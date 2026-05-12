@@ -28,8 +28,9 @@ import DownloadIcon from '@mui/icons-material/Download';
 import StarIcon from '@mui/icons-material/Star';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import { DataGrid } from '@mui/x-data-grid';
-import { CustomDialog, ConfirmDialog, CustomSelect, PublicadorDetalleModal, DescargarTarjetaModal, ImportarTarjetasModal } from '../components';
+import { CustomDialog, ConfirmDialog, CustomSelect, PublicadorDetalleModal, DescargarTarjetaModal, ImportarTarjetasModal, TarjetaResumenModal } from '../components';
 
 import { publicadoresService } from '../services/publicadoresService';
 import { grupoService } from '../services/grupoService';
@@ -63,11 +64,11 @@ const TIPO_LABEL: Record<number, string> = {
   [TipoPublicador.PrecursorRegular]: 'Precursor Regular',
 };
 
-const TIPO_COLOR: Record<number, 'default' | 'primary' | 'info' | 'warning'> = {
+const TIPO_COLOR: Record<number, 'default' | 'success' | 'info' | 'warning'> = {
   [TipoPublicador.Publicador]: 'default',
   [TipoPublicador.NoBautizado]: 'warning',
   [TipoPublicador.PrecursorAuxiliar]: 'info',
-  [TipoPublicador.PrecursorRegular]: 'primary',
+  [TipoPublicador.PrecursorRegular]: 'success',
 };
 
 const ROL_OPTIONS = [
@@ -136,6 +137,7 @@ export default function PublicadoresPage() {
   const [tarjetaPublicador, setTarjetaPublicador] = useState<{ idPublicador: string; nombrePublicador: string } | null>(null);
 
   const [importarOpen, setImportarOpen] = useState(false);
+  const [tarjetaResumenOpen, setTarjetaResumenOpen] = useState(false);
 
   const fetchGrupos = useCallback(async () => {
     try {
@@ -461,6 +463,14 @@ export default function PublicadoresPage() {
           </Button>
           <Button
             variant="outlined"
+            startIcon={<SummarizeIcon />}
+            onClick={() => setTarjetaResumenOpen(true)}
+            sx={{ borderRadius: 2.5 }}
+          >
+            Tarjetas
+          </Button>
+          <Button
+            variant="outlined"
             startIcon={<UploadFileIcon />}
             onClick={() => setImportarOpen(true)}
             sx={{ borderRadius: 2.5 }}
@@ -728,6 +738,12 @@ export default function PublicadoresPage() {
         open={importarOpen}
         onClose={() => setImportarOpen(false)}
         onImportado={() => fetchData(pagina)}
+      />
+
+      {/* Tarjeta resumen PDF */}
+      <TarjetaResumenModal
+        open={tarjetaResumenOpen}
+        onClose={() => setTarjetaResumenOpen(false)}
       />
 
     </Box>
