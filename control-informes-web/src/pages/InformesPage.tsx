@@ -28,6 +28,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Autocomplete,
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -495,7 +496,7 @@ export default function InformesPage() {
       width: 100,
       sortable: false,
       renderCell: (p) => (
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <Tooltip title="Editar">
             <IconButton
               size="small"
@@ -645,7 +646,7 @@ export default function InformesPage() {
                 '& .MuiDataGrid-columnHeaders': { backgroundColor: '#e8f0fe', borderBottom: '2px solid #c5d8fc' },
                 '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase', color: '#1565c0' },
                 '& .MuiDataGrid-row': { transition: 'background-color 0.15s', '&:hover': { backgroundColor: 'rgba(25,118,210,0.035)' } },
-                '& .MuiDataGrid-cell': { borderBottom: '1px solid #f0f3f8', fontSize: '0.875rem' },
+                '& .MuiDataGrid-cell': { borderBottom: '1px solid #f0f3f8', fontSize: '0.875rem', display: 'flex', alignItems: 'center' },
                 '& .MuiDataGrid-footerContainer': { borderTop: '1px solid #f0f3f8', backgroundColor: '#fafbff' },
               }}
             />
@@ -908,14 +909,20 @@ export default function InformesPage() {
         <Divider />
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1.5 }}>
-            <CustomSelect
-              label="Publicador"
-              value={nuevoForm.idPublicador}
+            <Autocomplete
               options={publicadorOptions}
-              onChange={(v) => {
-                const pub = publicadores.find((p) => p.idPublicador === v);
-                setNuevoForm({ ...nuevoForm, idPublicador: v as string, tipo: pub?.tipo ?? TipoPublicador.Publicador });
+              getOptionLabel={(o) => o.label}
+              isOptionEqualToValue={(o, v) => o.value === v.value}
+              value={publicadorOptions.find((o) => o.value === nuevoForm.idPublicador) ?? null}
+              onChange={(_, selected) => {
+                const pub = publicadores.find((p) => p.idPublicador === selected?.value);
+                setNuevoForm({ ...nuevoForm, idPublicador: selected?.value ?? '', tipo: pub?.tipo ?? TipoPublicador.Publicador });
               }}
+              renderInput={(params) => (
+                <TextField {...params} label="Publicador" size="small" fullWidth />
+              )}
+              noOptionsText="Sin resultados"
+              clearOnEscape
             />
             <CustomSelect
               label="Tipo"

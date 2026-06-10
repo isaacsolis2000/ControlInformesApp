@@ -34,7 +34,10 @@ export function KpiCard({ title, value, icon, gradient, subtitle, badge }: KpiCa
               {badge && <Box component="span" sx={{ ml: 1 }}>{badge}</Box>}
             </Typography>
             {subtitle && (
-              <Typography variant="caption" sx={{ color: '#94a3b8', mt: 0.5, display: 'block' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: '#1e40af', mt: 0.75, display: 'block', fontWeight: 700, fontSize: '0.92rem' }}
+              >
                 {subtitle}
               </Typography>
             )}

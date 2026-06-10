@@ -6,17 +6,14 @@ import {
   DialogActions,
   Button,
   Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  TextField,
   CircularProgress,
   Box,
 } from '@mui/material';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { publicadoresService } from '../../services/publicadoresService';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { calcularAnoServicioActual, generarOpcionesAno } from '../../utils/anoServicio';
+import { calcularAnoServicioActual } from '../../utils/anoServicio';
 
 interface Props {
   open: boolean;
@@ -28,8 +25,6 @@ export default function DescargarTarjetaModal({ open, onClose, publicador }: Pro
   const [anoSeleccionado, setAnoSeleccionado] = useState<number>(calcularAnoServicioActual());
   const [loading, setLoading] = useState(false);
   const showNotification = useNotificationStore((s) => s.showNotification);
-
-  const opciones = generarOpcionesAno();
 
   const handleDescargar = async () => {
     if (!publicador) return;
@@ -64,20 +59,15 @@ export default function DescargarTarjetaModal({ open, onClose, publicador }: Pro
               {publicador?.nombrePublicador ?? '—'}
             </Typography>
           </Box>
-          <FormControl size="small" fullWidth>
-            <InputLabel>Año de servicio</InputLabel>
-            <Select
-              value={anoSeleccionado}
-              label="Año de servicio"
-              onChange={(e) => setAnoSeleccionado(Number(e.target.value))}
-            >
-              {opciones.map((op) => (
-                <MenuItem key={op.valor} value={op.valor}>
-                  {op.etiqueta}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            label="Año de servicio"
+            type="number"
+            size="small"
+            fullWidth
+            value={anoSeleccionado}
+            onChange={(e) => setAnoSeleccionado(Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 2000, max: 2100, step: 1 } }}
+          />
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>

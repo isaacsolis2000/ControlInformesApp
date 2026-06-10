@@ -9,6 +9,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField,
   CircularProgress,
   Box,
 } from '@mui/material';
@@ -16,7 +17,7 @@ import SummarizeIcon from '@mui/icons-material/Summarize';
 import { publicadoresService } from '../../services/publicadoresService';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { TipoResumenPublicador } from '../../types';
-import { calcularAnoServicioActual, generarOpcionesAno } from '../../utils/anoServicio';
+import { calcularAnoServicioActual } from '../../utils/anoServicio';
 
 interface Props {
   open: boolean;
@@ -35,8 +36,6 @@ export default function TarjetaResumenModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const showNotification = useNotificationStore((s) => s.showNotification);
 
-  const opciones = generarOpcionesAno();
-
   const handleDescargar = async () => {
     setLoading(true);
     try {
@@ -54,20 +53,15 @@ export default function TarjetaResumenModal({ open, onClose }: Props) {
       <DialogTitle sx={{ pb: 1 }}>Descargar Tarjeta Resumen</DialogTitle>
       <DialogContent sx={{ pt: '12px !important' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <FormControl size="small" fullWidth>
-            <InputLabel>Año de servicio</InputLabel>
-            <Select
-              value={anoSeleccionado}
-              label="Año de servicio"
-              onChange={(e) => setAnoSeleccionado(Number(e.target.value))}
-            >
-              {opciones.map((op) => (
-                <MenuItem key={op.valor} value={op.valor}>
-                  {op.etiqueta}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            label="Año de servicio"
+            type="number"
+            size="small"
+            fullWidth
+            value={anoSeleccionado}
+            onChange={(e) => setAnoSeleccionado(Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 2000, max: 2100, step: 1 } }}
+          />
           <FormControl size="small" fullWidth>
             <InputLabel>Tipo de publicador</InputLabel>
             <Select

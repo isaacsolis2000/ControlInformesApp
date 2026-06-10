@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import {
   DialogActions,
   Divider,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
@@ -23,10 +24,13 @@ import EventIcon from '@mui/icons-material/Event';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import CloseIcon from '@mui/icons-material/Close';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
 import dayjs from 'dayjs';
 import { ConfirmDialog, CustomSelect } from '../components';
 import TarjetaReunionesModal from '../components/asistencia/TarjetaReunionesModal';
 import { asistenciaService } from '../services/asistenciaService';
+import type { ImportarPlantillaResult } from '../services/asistenciaService';
 import { useNotificationStore } from '../stores/notificationStore';
 import type {
   AsistenciaDto,
@@ -141,6 +145,10 @@ export default function AsistenciaPage() {
   // tarjeta reuniones
   const [tarjetaOpen, setTarjetaOpen] = useState(false);
 
+  // importar plantilla
+  const [importLoading, setImportLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // ─── fetch ──────────────────────────────────────────────────────────────────
 
   const fetchData = useCallback(async (page: number) => {
@@ -253,6 +261,38 @@ export default function AsistenciaPage() {
       fetchData(pagina);
     } catch { /* handled by interceptor */ }
     finally { setDeleting(false); }
+  };
+
+  // ─── handlers plantilla ──────────────────────────────────────────────────────
+
+  const handleDescargarPlantilla = async () => {
+    try {
+      await asistenciaService.descargarPlantilla();
+    } catch { /* handled by interceptor */ }
+  };
+
+  const handleImportarPlantilla = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setImportLoading(true);
+    try {
+      const result: ImportarPlantillaResult = await asistenciaService.importarPlantilla(file);
+      const errCount = result.errores?.length ?? 0;
+      if (errCount > 0) {
+        showNotification(
+          `Insertados: ${result.insertados} | Actualizados: ${result.actualizados} | Errores: ${errCount} — ${result.errores!.join('; ')}`,
+          'warning',
+        );
+      } else {
+        showNotification(
+          `Importación completada — Insertados: ${result.insertados} | Actualizados: ${result.actualizados}`,
+          'success',
+        );
+      }
+      fetchData(pagina);
+    } catch { /* handled by interceptor */ }
+    finally { setImportLoading(false); }
   };
 
   // ─── total calculado ─────────────────────────────────────────────────────────
@@ -393,6 +433,30 @@ export default function AsistenciaPage() {
             sx={{ borderRadius: 2.5 }}
           >
             Descargar Tarjeta
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleDescargarPlantilla}
+            sx={{ borderRadius: 2.5 }}
+          >
+            Descargar Plantilla
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx"
+            style={{ display: 'none' }}
+            onChange={handleImportarPlantilla}
+          />
+          <Button
+            variant="outlined"
+            startIcon={importLoading ? <CircularProgress size={16} /> : <UploadIcon />}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importLoading}
+            sx={{ borderRadius: 2.5 }}
+          >
+            Importar Plantilla
           </Button>
           <Button
             variant="outlined"

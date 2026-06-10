@@ -55,7 +55,7 @@ export const publicadoresService = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${nombrePublicador} - ${anoServicio}-${anoServicio + 1}.pdf`;
+    a.download = `${nombrePublicador} - ${anoServicio}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
