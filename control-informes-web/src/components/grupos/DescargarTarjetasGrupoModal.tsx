@@ -7,10 +7,7 @@ import {
   Button,
   Typography,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  TextField,
   Alert,
   CircularProgress,
   Tooltip,
@@ -18,7 +15,6 @@ import {
 import FolderZipIcon from '@mui/icons-material/FolderZip';
 import { publicadoresService } from '../../services/publicadoresService';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { calcularAnoServicioActual, generarOpcionesAno } from '../../utils/anoServicio';
 
 interface Props {
   open: boolean;
@@ -43,11 +39,10 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default function DescargarTarjetasGrupoModal({ open, onClose, grupo }: Props) {
-  const [anoSeleccionado, setAnoSeleccionado] = useState<number>(calcularAnoServicioActual());
+  const [anoSeleccionado, setAnoSeleccionado] = useState<number>(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
   const showNotification = useNotificationStore((s) => s.showNotification);
 
-  const opciones = generarOpcionesAno();
   const sinMiembros = (grupo?.totalMiembros ?? 0) === 0;
 
   const handleDescargar = async () => {
@@ -86,20 +81,18 @@ export default function DescargarTarjetasGrupoModal({ open, onClose, grupo }: Pr
             />
           </Box>
 
-          <FormControl size="small" fullWidth>
-            <InputLabel>Año de servicio</InputLabel>
-            <Select
-              value={anoSeleccionado}
-              label="Año de servicio"
-              onChange={(e) => setAnoSeleccionado(Number(e.target.value))}
-            >
-              {opciones.map((op) => (
-                <MenuItem key={op.valor} value={op.valor}>
-                  {op.etiqueta}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            label="Año de servicio"
+            type="number"
+            size="small"
+            fullWidth
+            value={anoSeleccionado}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              if (!isNaN(v) && v > 1900) setAnoSeleccionado(v);
+            }}
+            slotProps={{ htmlInput: { min: 1900, step: 1 } }}
+          />
 
           <Alert severity="info" sx={{ py: 0.5 }}>
             Se descargará un PDF por cada publicador del grupo en un archivo ZIP.

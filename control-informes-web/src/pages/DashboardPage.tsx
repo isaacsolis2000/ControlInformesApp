@@ -8,6 +8,7 @@ import {
   Paper,
   Chip,
   LinearProgress,
+  TextField,
 } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
@@ -35,18 +36,7 @@ import type { DashboardDto } from '../types';
 
 // ─── helpers de año de servicio ───────────────────────────────────────────────
 
-const calcularAnoServicioActual = (): number => {
-  const hoy = new Date();
-  return hoy.getMonth() >= 8 ? hoy.getFullYear() : hoy.getFullYear() - 1;
-};
-
-const ANOS_OPTIONS = (() => {
-  const anoActual = calcularAnoServicioActual();
-  return Array.from({ length: 5 }, (_, i) => {
-    const ano = anoActual - i;
-    return { value: ano, label: `${ano} - ${ano + 1}` };
-  });
-})();
+const ANO_ACTUAL = new Date().getFullYear();
 
 // valor 0 = "Todos" — no se envía mes en la petición
 const MESES_OPTIONS = [
@@ -110,7 +100,7 @@ function VariacionChip({ variacion }: { variacion: number }) {
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardDto | null>(null);
   const [loading, setLoading] = useState(false);
-  const [anoServicio, setAnoServicio] = useState(calcularAnoServicioActual());
+  const [anoServicio, setAnoServicio] = useState(ANO_ACTUAL);
   const [mes, setMes] = useState<number>(0); // 0 = Todos
 
   useEffect(() => {
@@ -130,12 +120,12 @@ export default function DashboardPage() {
       const ano = mes >= 9 ? anoServicio : anoServicio + 1;
       return `${nombreMes} ${ano}`;
     }
-    return `${anoServicio} – ${anoServicio + 1}`;
+    return `${anoServicio}`;
   })();
 
   const tituloSubtitulo = tieneMes
     ? contextoLabel
-    : `Año de servicio ${anoServicio} - ${anoServicio + 1}`;
+    : `Año de servicio ${anoServicio}`;
 
   const donutData = dashboard
     ? dashboard.distribucionPorTipo.map((d) => ({ name: d.tipo, value: d.cantidad }))
@@ -171,12 +161,18 @@ export default function DashboardPage() {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Box sx={{ width: 190 }}>
-            <CustomSelect
+          <Box sx={{ width: 130 }}>
+            <TextField
               label="Año de servicio"
+              type="number"
+              size="small"
               value={anoServicio}
-              options={ANOS_OPTIONS}
-              onChange={(v) => setAnoServicio(v as number)}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                if (!isNaN(v) && v > 1900) setAnoServicio(v);
+              }}
+              slotProps={{ htmlInput: { min: 1900, step: 1 } }}
+              fullWidth
             />
           </Box>
           <Box sx={{ width: 160 }}>
